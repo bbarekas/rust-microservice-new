@@ -1,3 +1,4 @@
+use clap::{crate_authors, crate_description, crate_name, crate_version, Arg, App};
 use dotenv::dotenv;
 use std::env;
 use hyper::{Body, Response, Server};
@@ -8,10 +9,33 @@ use log::{debug, info, trace};
 fn main() {
     dotenv().ok();
     pretty_env_logger::init();
+
+    let matches = App::new(crate_name!())
+        .version(crate_version!())
+        .author(crate_authors!())
+        .about(crate_description!())
+        .arg(Arg::with_name("config")
+            .short("c")
+            .long("config")
+            .value_name("FILE")
+            .help("Sets a custom config file")
+            .takes_value(true))
+        .arg(Arg::with_name("address")
+            .short("a")
+            .long("address")
+            .value_name("ADDRESS")
+            .help("Sets an address")
+            .takes_value(true))
+        .get_matches();
+
+    info!("Matches: {:?}", matches);
+
     info!("Rand Microservice - v0.1.0");
     trace!("Starting...");
-    let addr = env::var("ADDRESS")
-        .unwrap_or_else(|_| "127.0.0.1:8080".into())
+    let addr = matches.value_of("address")
+        .map(|s| s.to_owned())
+        .or(env::var("ADDRESS").ok())
+        .unwrap_or_else(|| "127.0.0.1:8080".into())
         .parse()
         .expect("can't parse ADDRESS variable");
     debug!("Trying to bind server to address: {}", addr);
