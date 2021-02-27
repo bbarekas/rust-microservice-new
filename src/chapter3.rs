@@ -4,7 +4,16 @@ use std::env;
 use hyper::{Body, Response, Server};
 use hyper::rt::Future;
 use hyper::service::service_fn_ok;
-use log::{debug, info, trace};
+use log::{warn, debug, info, trace};
+use serde_derive::Deserialize;
+use std::io::{self, Read};
+use std::fs::File;
+use std::net::SocketAddr;
+
+#[derive(Deserialize, Debug)]
+struct Config {
+    address: SocketAddr,
+}
 
 fn main() {
     dotenv().ok();
@@ -32,12 +41,32 @@ fn main() {
 
     info!("Rand Microservice - v0.1.0");
     trace!("Starting...");
+
+    let config = File::open("microservice.toml")
+        .and_then(|mut file| {
+            let mut buffer = String::new();
+            file.read_to_string(&mut buffer)?;
+            Ok(buffer)
+        })
+        .and_then(|buffer| {
+            toml::from_str::<Config>(&buffer)
+                .map_err(|err| io::Error::new(io::ErrorKind::Other, err))
+        })
+        .map_err(|err| {
+            warn!("Can't read config file: {}", err);
+        })
+        .ok();
+
+    info!("Config: {:?}", config);
+
     let addr = matches.value_of("address")
         .map(|s| s.to_owned())
         .or(env::var("ADDRESS").ok())
-        .unwrap_or_else(|| "127.0.0.1:8080".into())
-        .parse()
-        .expect("can't parse ADDRESS variable");
+        .and_then(|addr| addr.parse().ok())
+        .or(config.map(|config| config.address))
+        .or_else(|| Some(([127, 0, 0, 1], 8080).into()))
+        .unwrap();
+
     debug!("Trying to bind server to address: {}", addr);
 
     let builder = Server::bind(&addr);
