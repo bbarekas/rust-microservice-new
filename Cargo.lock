@@ -65,6 +65,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "base64"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b25d992356d2eb0ed82172f5248873db5560c4721f564b13cb5193bda5e668e"
+dependencies = [
+ "byteorder",
+]
+
+[[package]]
+name = "base64-serde"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1dcbb80c1f9f58fad55c19aa86b330f2960079e9fe76a3f61c803d2ac492f900"
+dependencies = [
+ "base64",
+ "serde",
+]
+
+[[package]]
 name = "bitflags"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -391,8 +410,11 @@ dependencies = [
 name = "hyper-microservice"
 version = "0.1.0"
 dependencies = [
+ "base64",
+ "base64-serde",
  "clap",
  "dotenv",
+ "failure",
  "futures",
  "hyper",
  "lazy_static",
