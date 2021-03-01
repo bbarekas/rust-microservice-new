@@ -426,6 +426,7 @@ dependencies = [
  "failure",
  "futures",
  "hyper",
+ "hyper-staticfile",
  "lazy_static",
  "log",
  "pretty_env_logger",
@@ -439,6 +440,21 @@ dependencies = [
  "slab",
  "tokio",
  "toml",
+]
+
+[[package]]
+name = "hyper-staticfile"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7c0034220e6050ba0c9f4122b129b40ffd3e6e191c7e23cf71fa4fd32c544a3e"
+dependencies = [
+ "chrono",
+ "futures",
+ "http",
+ "hyper",
+ "tokio",
+ "url",
+ "winapi 0.3.9",
 ]
 
 [[package]]
